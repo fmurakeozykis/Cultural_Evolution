@@ -5,24 +5,28 @@ mean_deg <- 6
 var_deg <- 10
 
 ##### WELL-MIXED #####
-samplesize <- 10
-m <- seq(1,100)
+m <- seq(1, n)
 ##### MAIN #####
-length <- 10 # change length to sample size
 trait <- c("immigrant", "resident")
-##simulte well-mixed model compare
+num_events <- 10^6
 
 #cultural conservatism
-c_r <- 0.4
-c_i <- 0.2
+c_r <- 1
+c_i <- 0.5
 d_c <- c_r - c_i
+
 #interaction tendency
-rwithr <- 0.6
-rwithi <- 0.6
-iwithi <- 0.6
-iwithr <- 0.6
+## individual tendency
+x_ii <- 0.5
+x_rr <- 0.5
+x_ir <- 0.1
+x_ri <- 0.1
+## actual probability
+rwithr <- x_rr * x_rr
+iwithi <- x_ii * x_ii
+rwithi <- x_ir * x_ri
 
 #### COMBINATIONS ####
-#par <- c()
-migrate <- c(0.2, 0.4, 0.6, 0.8)
-#combi <- ed
+migrate <- seq(from = 0.001, to = 0.1, by = 0.005)
+
+
