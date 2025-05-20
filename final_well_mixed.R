@@ -3,8 +3,6 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-
-# Create initial population
 properties_2 <- data.frame(
   individual = m,
   trait = rep("resident", length(m))
@@ -17,13 +15,11 @@ vary_migration <- function(migrate, num_events, properties_2, m) {
     
     for (event in 1:num_events) {
       
-      # Pick a random individual
       i <- sample(m, 1)
       
       migrate_now <- rbinom(1, 1, x)
       if (migrate_now == 1) {
         properties_2$trait[properties_2$individual == i] <- "immigrant"
-        # cat(i, "replaced by immigrant\n")
       } else {
         partners <- m[m != i]
         s <- sample(partners, 1)
@@ -65,13 +61,9 @@ vary_migration <- function(migrate, num_events, properties_2, m) {
           }
         }
       }
-      
-      # OPTIONAL: Save intermediate every N steps
-      # if (event %% 100000 == 0) cat("Event:", event, "\n")
     }
     
-    # After 1 million events for this migration rate, save the result
-    migr <- paste0("mig_", x)  # Add a prefix to avoid issues
+    migr <- paste0("mig_", x) 
     properties_2[[migr]] <- properties_2$trait
     
     cat("Saved traits for migration rate:", x, "\n")
@@ -85,25 +77,20 @@ vary_migration <- function(migrate, num_events, properties_2, m) {
 system.time({
 properties_2 <- vary_migration(migrate, num_events, properties_2, m)})
 
-
-# Count number of individuals with each trait per migration rate
 trait_counts <- traits_long %>%
   group_by(migration_rate, trait) %>%
   summarise(count = n(), .groups = "drop")
 
-# Calculate total individuals per migration rate
 total_counts <- trait_counts %>%
   group_by(migration_rate) %>%
   summarise(total = sum(count))
 
-# Join and filter only immigrant rows
 immigrant_freq <- trait_counts %>%
   filter(trait == "immigrant") %>%
   left_join(total_counts, by = "migration_rate") %>%
   mutate(frequency = count / total) %>%
   select(migration_rate, frequency)
 
-# Plot
 plot <-ggplot(trait_counts, aes(x = factor(migration_rate), y = count, fill = trait)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
@@ -113,11 +100,4 @@ plot <-ggplot(trait_counts, aes(x = factor(migration_rate), y = count, fill = tr
     fill = "Trait"
   ) +
   theme_minimal()
-
-ggplot(immigrant_freq, aes(x = migration_rate, y = frequency, fill = value)) +
-  geom_tile() +            # each tile is one cell of the heatmap
-  scale_fill_gradient(low = "blue", high = "red") +  # colors from low to high values
-  theme_minimal() +
-  labs(title = "Heatmap", fill = "Value")
-
 
