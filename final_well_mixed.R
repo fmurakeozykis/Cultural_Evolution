@@ -3,24 +3,25 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-#create the well-mixed population with size m, consisting only of residents
+#Create the well-mixed population with size m, consisting only of residents.
 properties_2 <- data.frame(
   individual = m,
   trait = rep("resident", length(m))
 )
 
-#this function starts the simulation
+#This function starts the simulation.
 vary_migration <- function(migrate, num_events, properties_2, m) {
-  #migrate is  vector of migration rates. for each migration rate, num_events will give the number of iterations per migration rate
+  #'migrate' is  vector containing range of migration rates from all_parameters.R
+  #For each migration rate, num_events will give the number of iterations per migration rate.
   for (x in migrate) {
     cat("\n--- Starting migration rate:", x, "---\n")
     
     for (event in 1:num_events) {
       #sample a random individual i form the population
       i <- sample(m, 1)
-      #there is a binomial chance of muigration, with the given probability of the migration rate
-      #if migration occurs, i recieves the immigrant cultural trait
-      #if not, a partner is sampled from the population  
+      #Migration is modeled as a binomial process, using the given migration rate as the probability of migration.
+      #if migration occurs, i recieves the immigrant cultural trait.
+      #If not, a partner is sampled from the network (excluding the focal individual).
       migrate_now <- rbinom(1, 1, x)
       if (migrate_now == 1) {
         properties_2$trait[properties_2$individual == i] <- "immigrant"
@@ -31,9 +32,9 @@ vary_migration <- function(migrate, num_events, properties_2, m) {
         trait_i <- properties_2$trait[properties_2$individual == i]
         trait_s <- properties_2$trait[properties_2$individual == s]
 
-        #if both are residents, the probability of interaction is given by rwithr = x_rr^2
-        #if they interact, the probability of taking over of the partner's trait is given by c_r
-        #this is repeated with every possible combination
+        #If both are residents, the binomial event of interaction is given by the probability of interaction is given by rwithr = x_rr^2.
+        #If they interact, the probability of taking over of the partner's trait is given by c_r
+        #This is repeated with every possible combination
         if (trait_i == "resident" && trait_s == "resident") {
           interact <- rbinom(1, 1, rwithr)
           if (interact == 1) {
@@ -69,7 +70,7 @@ vary_migration <- function(migrate, num_events, properties_2, m) {
         }
       }
     }
-    #this adds new columns to the data frame properties_2 for every new migration rate 
+    #This adds new columns to the data frame properties_2 for every new migration rate.
     migr <- paste0("mig_", x) 
     properties_2[[migr]] <- properties_2$trait
     
@@ -80,12 +81,12 @@ vary_migration <- function(migrate, num_events, properties_2, m) {
   
   return(properties_2)
 }
-#run the simulation, check system time
+#Run the simulation, check system time.
 system.time({
 properties_2 <- vary_migration(migrate, num_events, properties_2, m)})
 
 
-#visualize data
+#Visualize data.
 trait_counts <- traits_long %>%
   group_by(migration_rate, trait) %>%
   summarise(count = n(), .groups = "drop")
