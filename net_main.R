@@ -37,7 +37,7 @@ vary_migration <- function(migrate, num_events, properties_1, g) {
         
         #If both are residents, the binomial event of interaction is given by the probability of interaction is given by rwithr = x_rr^2.
         #If they interact, the probability of taking over of the partner's trait is given by c_r
-        #this is repeated with every possible combination
+        #This is repeated with every possible combination
         if (trait_i == "resident" && trait_s == "resident") {
           interact <- rbinom(1, 1, rwithr)
           if (interact == 1) {
@@ -73,7 +73,7 @@ vary_migration <- function(migrate, num_events, properties_1, g) {
         }
       }
     }
-    #this adds new columns to the data frame properties_2 for every new migration rate 
+    #This adds new columns to the data frame properties_2 for every new migration rate.
     migr <- paste0("mig_", x)
     properties_1[[migr]] <- properties_1$trait
     cat("Saved traits for migration rate:", x, "\n")
@@ -83,7 +83,7 @@ vary_migration <- function(migrate, num_events, properties_1, g) {
   
   return(properties_1)
 }
-#run the simulation, check system time
+#Run the simulation, check system time.
 system.time({
   properties_1 <- vary_migration(migrate, num_events, properties_1, g)
 })
