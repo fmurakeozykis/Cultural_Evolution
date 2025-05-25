@@ -16,7 +16,7 @@ vary_migration <- function(migrate, num_events, properties_2, m) {
     cat("\n--- Starting migration rate:", x, "---\n")
     
     for (event in 1:num_events) {
-      #sample a random individual i formt he population
+      #sample a random individual i form the population
       i <- sample(m, 1)
       #there is a binomial chance of muigration, with the given probability of the migration rate
       #if migration occurs, i recieves the immigrant cultural trait
