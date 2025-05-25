@@ -4,25 +4,26 @@ library(igraph)
 library(tidyr)
 library(ggplot2)
 
-#create a dataframe with the nodes of graph g from network.R, where every individual is a resident
+#We create a dataframe with the nodes of graph g from network.R, where every individual is a resident.
 cols <- c("node", "trait")
 properties_1 <- data.frame(
   node = as.integer(V(g)), 
   trait = rep("resident", n)
 )
 
-#this function starts the simulation
+#This function starts the simulation.
 vary_migration <- function(migrate, num_events, properties_1, g) {
-  #migrate is  vector of migration rates. for each migration rate, num_events will give the number of iterations per migration rate
+  #'migrate' is  vector containing range of migration rates from all_parameters.R
+  #For each migration rate, num_events will give the number of iterations per migration rate.
   for (x in migrate) {
     cat("\n--- Starting migration rate:", x, "---\n")
     
     for (event in 1:num_events) {
-    #sample a random individual i form the network
+    #Sample a random individual i form the network g.
       i <- sample(as.integer(V(g)), 1)
-      #there is a binomial chance of muigration, with the given probability of the migration rate
-      #if migration occurs, i recieves the immigrant cultural trait
-      #if not, a partner is sampled from the population  
+      #Migration is modeled as a binomial process, using the given migration rate as the probability of migration.
+      #if migration occurs, i recieves the immigrant cultural trait.
+      #If not, a partner is sampled from the network (excluding the focal individual).
       
       migrate_now <- rbinom(1, 1, x)
       if (migrate_now == 1) {
@@ -34,8 +35,8 @@ vary_migration <- function(migrate, num_events, properties_1, g) {
         trait_i <- properties_1$trait[properties_1$node == i]
         trait_s <- properties_1$trait[properties_1$node == s]
         
-        #if both are residents, the probability of interaction is given by rwithr = x_rr^2
-        #if they interact, the probability of taking over of the partner's trait is given by c_r
+        #If both are residents, the binomial event of interaction is given by the probability of interaction is given by rwithr = x_rr^2.
+        #If they interact, the probability of taking over of the partner's trait is given by c_r
         #this is repeated with every possible combination
         if (trait_i == "resident" && trait_s == "resident") {
           interact <- rbinom(1, 1, rwithr)
