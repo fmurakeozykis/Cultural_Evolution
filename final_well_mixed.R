@@ -1,4 +1,4 @@
-source("C:/Users/fmura/Documents/groningen/New folder/all_parameters.R")
+source("all_parameters.R")
 library(dplyr)
 library(tidyr)
 library(ggplot2)
