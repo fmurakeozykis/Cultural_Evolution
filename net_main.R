@@ -1,5 +1,5 @@
-source("C:/Users/fmura/Documents/groningen/New folder/network.R")
-source("C:/Users/fmura/Documents/groningen/New folder/all_parameters.R")
+source("network.R")
+source("all_parameters.R")
 library(igraph)
 library(tidyr)
 library(ggplot2)
