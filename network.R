@@ -1,5 +1,5 @@
 library(igraph)
-source("C:/Users/fmura/Documents/groningen/New folder/all_parameters.R")
+source("all_parameters.R")
 
 #The size of the negative binomial distribution is a ratio between the mean and variance.
 #Thus, degree distirbution of the network can be adjusted by varying the mean and variance.
