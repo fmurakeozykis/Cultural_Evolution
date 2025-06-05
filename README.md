@@ -18,9 +18,9 @@ This project investigates how the structure of social networks influences the dy
 - **R**: This project requires the latest version of R (tested on version 4.4.2).
 - **R packages**:
   - `igraph`
-  - `rmarkdown` (if not pre-installed)
+  - `ggplot2`
 
 Packages can be installed using:
 
 ```R
-install.packages(c("igraph", "rmarkdown"))
+install.packages(c("igraph", "ggplot2"))
