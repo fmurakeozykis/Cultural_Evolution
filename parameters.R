@@ -1,5 +1,4 @@
 ##### GENERAL ##################################################################
-
 popsize <- 1000  # number of individuals
 c_r <- 0.9 # resident cultural conservatism
 time_steps <- 10^6 # simulation time steps
