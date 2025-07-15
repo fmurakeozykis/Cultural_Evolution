@@ -106,10 +106,10 @@ run_wellmixed_simulation <-function(output_dir, file_name, degree, run_number, v
         pop$trait[focal] <- "immigrant"
       } else {
         repeat { 
-          int_part <- sample(popsize, 1) 
-          if (int_part != focal) break 
+          partner <- sample(popsize, 1) 
+          if (partner != focal) break 
           }
-        if (pop$trait[focal] != pop$trait[int_part] && runif(1) < int_prob_other) {
+        if (pop$trait[focal] != pop$trait[partner] && runif(1) < int_prob_other) {
           change_prob <- ifelse(pop$trait[focal] == "resident", 1 - c_r, 1 - c_i)
           if (runif(1) < change_prob) {
             pop$trait[focal] <- ifelse(pop$trait[focal] == "resident", "immigrant", "resident")
@@ -139,7 +139,7 @@ run_homogeneous_simulation <- function(output_dir, file_name, degree, run_number
   results_hom$resident_fraction <- NA_real_
   results_hom$seed_used <- NA_integer_
   
-  tic("Homogeneous Simulation")
+  tic(paste("Homogeneous Simulation for degree =", degree))
   for (i in seq_len(nrow(results_hom))) {
     set.seed(base_seed + i)
     
@@ -188,7 +188,7 @@ run_network_simulation <- function(output_dir, file_name, degree, run_number, va
   results_net$resident_fraction <- NA_real_
   results_net$seed_used <- NA_integer_
   
-  tic("Network Simulation")
+  tic(paste("Network Simulation for degree =", degree))
   for (i in seq_len(nrow(results_net))) {
     set.seed(base_seed + i)
     
