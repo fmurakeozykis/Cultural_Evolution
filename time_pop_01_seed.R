@@ -5,23 +5,19 @@
 # Date: July 2025
 #
 # Description:
-# This script runs a simulation to assess how population size in a social 
-# network with a negative binomial degree distribution affects cultural 
-# trait retention under migration, recording cultural trait frequencies
-# over time.
+# This script runs a simulation to assess how population size affects cultural 
+# trait retention under migration comparatively in a well-mixed, both netowrks 
+# with a homogeneous and heterogeneous (negative binomial) degree distributions, 
+# recording cultural trait frequencies over time.
 #
 # To run this script on Hábrók: 
 # - Load R 4.4.2 via the appropriate module
 # - Assign local working directory
-# - Submit via a batch script or run interactively with Rscript
+# - Submit via a SLURM batch script
 #
 # Outputs:
 # - .RDS files with time series and seed numbers saved in the specified 
 #    results directory.
-#
-# Usage:
-# - Modify parameters under "GENERAL SETTINGS" as needed
-# - Run with: Rscript this_script.R
 #
 # Part of: Cultural_Evolution repository (habrok branch)
 ###############################################################################
