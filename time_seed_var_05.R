@@ -1,12 +1,13 @@
 ###############################################################################
 # Simulation: Social Net Acculturation Model - Variance Experiment (Hábrók)
+# Version: Timeseries
 # Author: Flora Murakeozy-Kis
 # Date: July 2025
 #
 # Description:
-# This script runs a simulation to assess how degree variance in a network
-# affects cultural trait retention under migration, recording cultural trait
-# frequencies over time.
+# This script runs a simulation to assess how degree variance in a social
+# network with a negative binomial degree distribution affects cultural trait 
+# retention under migration, recording cultural trait frequencies over time.
 #
 # To run this script on Hábrók: 
 # - Load R 4.4.2 via the appropriate module
