@@ -10,7 +10,7 @@
 # being equal to 0.1 and 0.5
 ###########################################################################
 
-# INTERACTION PROBABILITY = 0.5 ------------------------------------------
+# INTERACTION PROBABILITY = 0.1 ------------------------------------------
 
 run_homogeneous_simulation01 <- function(output_path = "data/hom01.RDS") {
   source("parameters.R")
