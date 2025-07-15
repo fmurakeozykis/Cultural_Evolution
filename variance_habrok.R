@@ -15,11 +15,12 @@
 # - Submit via a SLURM batch script
 #
 # Outputs:
-# - .RDS files with time series and seed numbers saved in the specified 
+# - .RDS files with  final trait frequencies and seed numbers saved in the specified 
 #    results directory.
 #
 # Part of: Cultural_Evolution repository (habrok branch)
 ###############################################################################
+
 #############################################################################
 ############# PARAMETERS & PACKAGES #########################################
 #############################################################################
@@ -28,7 +29,7 @@
 popsize <- 1000
 c_r <- 0.9
 time_steps <- 10^6
-int_prob_other <- 0.5
+int_prob_other <- 0.1
 
 # Sweep ranges
 migration_rates <- seq(from = 0.001, to = 0.1, by = 0.01)
@@ -53,7 +54,7 @@ invisible(lapply(required_packages, function(pkg) {
 
 experiment_number <- 2    # Experiment 2: Variance
 sim_type <- 1             # Normal version
-interaction_code <- 2     # 0.5 interaction probability
+interaction_code <- 1     # 0.5 interaction probability
 model_code <- 3           # Network
 
 # Variant codes: 1 = variance 10, 2 = 20, 3 = 30
@@ -77,7 +78,7 @@ make_neg_binom_network <- function(popsize, mean_degree, var_degree) {
 ############# SIMULATION FUNCTION ###########################################
 #############################################################################
 
-run_network_simulation01 <- function(output_path, variance, run_number, variant_code) {
+run_network_simulation <- function(output_dir, file_name, variance, run_number, variant_code) {
   results_net <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
   results_net$resident_fraction <- NA_real_
   results_net$seed_used <- NA_integer_
@@ -89,53 +90,47 @@ run_network_simulation01 <- function(output_path, variance, run_number, variant_
     variant_code     * 1e2 +
     run_number
   
-  tic("Network Simulation")
+  tic(paste("Network Simulation for variance =", variance))
   for (i in seq_len(nrow(results_net))) {
     set.seed(base_seed + i)
     
     mig_rate <- results_net$mig_rate[i]
     c_i <- results_net$c_i[i]
     
-    pop_data <- make_neg_binom_network(popsize, mean_degree, variance)
-    network_pop <- pop_data$network_pop
-    adj_list_net <- pop_data$adj_list_net
+    data <- make_neg_binom_network(popsize, mean_degree, variance)
+    pop <- data$network_pop
+    adj <- data$adj_list_net
     
     for (t in seq_len(time_steps)) {
       is_migrating <- runif(1) < mig_rate
-      focal_ind <- sample.int(popsize, 1)
+      focal <- sample.int(popsize, 1)
       
       if (is_migrating) {
-        network_pop[focal_ind] <- "immigrant"
+        pop[focal] <- "immigrant"
       } else {
-        neighbors <- adj_list_net[[focal_ind]]
-        int_part <- neighbors[sample.int(length(neighbors), 1)]
-        
-        if (network_pop[focal_ind] != network_pop[int_part]) {
-          if (runif(1) < int_prob_other) {
-            change_prob <- if (network_pop[focal_ind] == "resident") (1 - c_r) else (1 - c_i)
-            if (runif(1) < change_prob) {
-              network_pop[focal_ind] <- ifelse(
-                network_pop[focal_ind] == "resident", "immigrant", "resident"
-              )
+        neighbor <- adj[[focal]][sample.int(length(adj[[focal]]), 1)]
+        if (pop[focal] != pop[neighbor] && runif(1) < int_prob_other) {
+          change_prob <- ifelse(pop[focal] == "resident", 1 - c_r, 1 - c_i)
+          if (runif(1) < change_prob) {
+            pop[focal] <- ifelse(pop[focal] == "resident", "immigrant", "resident")
             }
           }
-        }
       }
     }
     
-    results_net$resident_fraction[i] <- sum(network_pop == "resident") / popsize
+    results_net$resident_fraction[i] <- sum(pop == "resident") / popsize
     results_net$seed_used[i] <- base_seed + i
   }
   toc()
   
-  saveRDS(results_net, file = output_path)
+  saveRDS(results_net, file = file.path(output_dir, file_name))
 }
 
 #############################################################################
 ############# RUN SIMULATIONS ###############################################
 #############################################################################
 
-output_dir <- "norm_seed_var_net05_r"
+output_dir <- "data_var"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
@@ -143,7 +138,7 @@ if (!dir.exists(output_dir)) {
 for (var in var_degree) {
   variant_code <- variant_codes[[as.character(var)]]
   for (i in 1:10) {
-    output_file <- file.path(output_dir, paste0("s_norm_net05_var", var, "_run", i, ".RDS"))
-    run_network_simulation01(output_path = output_file, variance = var, run_number = i, variant_code = variant_code)
+    run_network_simulation(output_dir, paste0("data_var", var, "_run", i, ".RDS"),
+                          var, i, variant_code)
   }
 }
