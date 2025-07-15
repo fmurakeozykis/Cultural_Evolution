@@ -23,8 +23,12 @@
 # Part of: Cultural_Evolution repository (habrok branch)
 ###############################################################################
 
+# Cultural Evolution Simulations - Final Version
+setwd("/home3/s5194326/floras_directory/basic/results")
+
 # PARAMETERS & PACKAGES ---------------------------------------------------
-pop_sizes <- c(500, 1000, 1500)
+
+pop_size <- 1000
 c_r <- 0.9
 time_steps <- 10^6
 int_prob_other <- 0.1
@@ -35,22 +39,17 @@ c_i_s <- seq(0, 0.9, 0.1)
 mean_degree <- 4
 var_degree <- 10
 
-required_packages <- c("igraph", "here", "tictoc")
-invisible(lapply(required_packages, function(pkg) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    stop(paste("Package", pkg, "is not installed. Please install before running on Hábrók."))
-  }
-  library(pkg, character.only = TRUE)
-}))
-
-popsize <- pop_sizes
+required_packages <- c("igraph", "tictoc", "here")
+new_packages <- required_packages[!(required_packages %in% installed.packages()[, "Package"])]
+if (length(new_packages)) install.packages(new_packages)
+lapply(required_packages, library, character.only = TRUE)
 
 # SEED SYSTEM -------------------------------------------------------------
 experiment_number <- 5    # Experiment 1: Pop size
 sim_type <- 1             # Normal version
-interaction_code <- 2     # 0.1 interaction prob
+interaction_code <- 1     # 0.1 interaction prob
 
-variant_codes <- list("500" = 1, "1000" = 2, "1500" = 3)
+variant_code <- 0
 
 # POPULATION FUNCTIONS -----------------------------------------------------
 
@@ -89,7 +88,7 @@ run_wellmixed_simulation <- function(output_dir, file_name, run_number, variant_
   results_wm$resident_fraction <- NA_real_
   results_wm$seed_used <- NA_integer_
   
-  tic(paste("Well-mixed Simulation for popsize =", popsize))
+  tic("Well-mixed Simulation")
   for (i in seq_len(nrow(results_wm))) {
     set.seed(base_seed + i)
     
@@ -138,7 +137,7 @@ run_homogeneous_simulation <- function(output_dir, file_name, run_number, varian
   results_hom$resident_fraction <- NA_real_
   results_hom$seed_used <- NA_integer_
   
-  tic(paste("Homogeneous Simulation for popsize =", popsize))
+  tic("Homogeneous Simulation")
   for (i in seq_len(nrow(results_hom))) {
     set.seed(base_seed + i)
     
@@ -187,7 +186,7 @@ run_network_simulation <- function(output_dir, file_name, run_number, variant_co
   results_net$resident_fraction <- NA_real_
   results_net$seed_used <- NA_integer_
   
-  tic(paste("Network Simulation for popsize =", popsize))
+  tic("Network Simulation")
   for (i in seq_len(nrow(results_net))) {
     set.seed(base_seed + i)
     
@@ -225,23 +224,23 @@ run_network_simulation <- function(output_dir, file_name, run_number, variant_co
 }
 
 # RUN ALL SIMULATIONS ------------------------------------------------------
-output_dir <- "data_popsize"
+
+output_dir <- "data_popstruc"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-for (psize in pop_sizes) {
-  variant_code <- variant_codes[[as.character(psize)]]
-
-  for (i in 1:10) {
-    run_wellmixed_simulation(output_dir, paste0("data_wm_popsize", psize, "_run", i, ".RDS"),
-                             run_number = i, variant_code = variant_code, popsize = psize)
-    
-    run_homogeneous_simulation(output_dir, paste0("data_hom_popsize", psize, "_run", i, ".RDS"),
-                               run_number = i, variant_code = variant_code, popsize = psize)
-    
-    run_network_simulation(output_dir, paste0("data_net_popsize", psize, "_run", i, ".RDS"),
-                           run_number = i, variant_code = variant_code, popsize = psize)
-  }
+for (i in 1:10) {
+  file_name <- paste0("data_popstruc_wm_run", i, ".RDS")
+  run_wellmixed_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code)
 }
-                     
+
+for (i in 1:10) {
+  file_name <- paste0("data_popstruc_hom_run", i, ".RDS")
+  run_homogeneous_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code)
+}
+
+for (i in 1:10) {
+  file_name <- paste0("data_popstruc_net_run", i, ".RDS")
+  run_network_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code)
+}
