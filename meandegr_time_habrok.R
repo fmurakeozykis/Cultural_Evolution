@@ -33,7 +33,7 @@ int_prob_other <- 0.5
 migration_rates <- c(0.001, 0.041, 0.061)
 c_i_s <- c(0.9, 0.4, 0.0)
 
-mean_degree <- c(2,8,14,20)
+mean_degree <- c(2,8)
 var_degree <- 10
 
 required_packages <- c("igraph", "tictoc", "here")
@@ -51,7 +51,7 @@ interaction_code <- 2     # 0.5 interaction probability
 
 
 # Variant codes for mean degrees
-variant_codes <- list("2" = 1, "8" = 2, "14" = 3, "20" = 4)
+variant_codes <- list("2" = 1, "8" = 2)
 
 # POPULATION FUNCTIONS -----------------------------------------------------
 
