@@ -1,5 +1,25 @@
-setwd("/home3/s5194326/floras_directory/var.compare/results/seed/normal")
-
+###############################################################################
+# Simulation: Social Net Acculturation Model - Degree Variance Experiment (Hábrók)
+# Version: Final trait frequencies
+# Author: Flora Murakeozy-Kis
+# Date: July 2025
+#
+# Description:
+# This script runs a simulation to assess how degree variance affects 
+# cultural trait retention under migration in a population with a heterogenous 
+# (negative binomial) degree distribution, recording final cultural trait frequencies.
+#
+# To run this script on Hábrók: 
+# - Load R 4.4.2 via the appropriate module
+# - Assign local working directory
+# - Submit via a SLURM batch script
+#
+# Outputs:
+# - .RDS files with time series and seed numbers saved in the specified 
+#    results directory.
+#
+# Part of: Cultural_Evolution repository (habrok branch)
+###############################################################################
 #############################################################################
 ############# PARAMETERS & PACKAGES #########################################
 #############################################################################
