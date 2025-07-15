@@ -1,4 +1,16 @@
-########### For interaction probability = 0.1 ########################################
+################################################################################
+# Simulation: Social Net Acculturation Model - Simulation of Well-Mixed Population
+# Author: Flora Murakeozy-Kis
+# Date: July 2025
+#
+# Description:
+# Simulation of acculturation mechanisms in the well-mixed population produced 
+# in `make_population.R`, for both in the case of interaction probability being 
+# being equal to 0.1 and 0.5.
+###########################################################################
+
+# INTERACTION PROBABILITY = 0.1 ------------------------------------------
+
 run_wellmixed_simulation01 <- function(output_path = "data/wellmixed01.RDS") {
    source("parameters.R")
    source("make_population.R")
@@ -49,7 +61,7 @@ run_wellmixed_simulation01 <- function(output_path = "data/wellmixed01.RDS") {
    saveRDS(results_wm, file = output_path)
  }
  
-########### For interaction probability = 0.5 ########################################
+# INTERACTION PROBABILITY = 0.5 ------------------------------------------
  
  run_wellmixed_simulation05 <- function(output_path = "data/wellmixed05.RDS") {
    source("parameters.R")
