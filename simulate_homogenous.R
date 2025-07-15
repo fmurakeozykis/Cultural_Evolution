@@ -1,3 +1,17 @@
+################################################################################
+# Simulation: Social Net Acculturation Model - Simulation of Homogeneous Network
+# Population
+# Author: Flora Murakeozy-Kis
+# Date: July 2025
+#
+# Description:
+# Simulation of acculturation mechanisms in the homogeneous network produced 
+# in `make_population.R`, for both in the case of interaction probability being 
+# being equal to 0.1 and 0.5
+###########################################################################
+
+# INTERACTION PROBABILITY = 0.5 ------------------------------------------
+
 run_homogeneous_simulation01 <- function(output_path = "data/hom01.RDS") {
   source("parameters.R")
   source("make_population.R")
@@ -49,8 +63,8 @@ run_homogeneous_simulation01 <- function(output_path = "data/hom01.RDS") {
   saveRDS(results_hom, file = output_path)
 }
 
-#####
-
+# INTERACTION PROBABILITY = 0.5 ------------------------------------------
+  
 run_homogeneous_simulation05 <- function(output_path = "data/hom05.RDS") {
   source("parameters.R")
   source("make_population.R")
