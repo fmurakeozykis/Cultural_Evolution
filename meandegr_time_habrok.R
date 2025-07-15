@@ -155,7 +155,7 @@ run_homogeneous_simulation <- function(file_name, degree, run_number, variant_co
   
   tic("Homogeneous Simulation")
   for (i in seq_len(nrow(results))) {
-    set.seed(2080 + i)
+    set.seed(base_seed + i)
     mig_rate <- results$mig_rate[i]
     c_i <- results$c_i[i]
     data <- make_homogeneous_network(popsize, degree)
@@ -205,7 +205,7 @@ run_network_simulation <- function(file_name, degree, run_number, variant_code) 
   
   tic("Network Simulation")
   for (i in seq_len(nrow(results))) {
-    set.seed(4080 + i)
+    set.seed(base_seed + i)
     mig_rate <- results$mig_rate[i]
     c_i <- results$c_i[i]
     data <- make_neg_binom_network(popsize, degree, var_degree)
@@ -243,7 +243,7 @@ run_network_simulation <- function(file_name, degree, run_number, variant_code) 
 
 # RUN ALL SIMULATIONS ------------------------------------------------------
 
-output_dir <- "s_deg_05_time_r"
+output_dir <- "data_meandegr_time"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
@@ -253,18 +253,18 @@ for (deg in mean_degree) {
   variant_code <- variant_codes[[as.character(deg)]]
   
   for (i in 1:10) {
-    file_name <- paste0("s_time_hom05_deg", deg, "_run", i, ".RDS")
+    file_name <- paste0("data_time_hom_meandegr", deg, "_run", i, ".RDS")
     run_homogeneous_simulation(file_name = file_name, degree = deg, run_number = i, variant_code = variant_code)
   }
   
   for (i in 1:10) {
-    file_name <- paste0("s_time_net05_deg", deg, "_run", i, ".RDS")
+    file_name <- paste0("data_time_net_meandegr", deg, "_run", i, ".RDS")
     run_network_simulation(file_name = file_name, degree = deg, run_number = i, variant_code = variant_code)
   }
 }
 
 for (i in 1:10) {
-  file_name <- paste0("s_time_wm05_deg_run_", i, ".RDS")
+  file_name <- paste0("data_time_wm_meandegr", i, ".RDS")
   run_wellmixed_simulation(file_name = file_name, degree = deg, run_number = i, variant_code = variant_code)
 }
 
