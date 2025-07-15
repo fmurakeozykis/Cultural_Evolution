@@ -20,7 +20,7 @@ results <- readRDS("data/wellmixed01.RDS")
 plot01 <- plot_wellmixed(results,0.1)
 ggsave("figures/wm_0.1t.pdf", plot = plot01, width = 8, height = 6)
 
-# INTERACTION PROBABILITY = 0.1 -----------------------------------
+# INTERACTION PROBABILITY = 0.5 -----------------------------------
 results <- readRDS("data/wellmixed05.RDS")
 plot05 <- plot_wellmixed(results,0.5)
 ggsave("figures/wm_0.5t.pdf", plot = plot05, width = 8, height = 6)
