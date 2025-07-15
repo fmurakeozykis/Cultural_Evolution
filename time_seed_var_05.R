@@ -1,4 +1,29 @@
-setwd("/home3/s5194326/floras_directory/var.compare/results/seed/time")
+###############################################################################
+# Simulation: Social Net Acculturation Model - Variance Experiment (Hábrók)
+# Author: Flora Murakeozy-Kis
+# Date: July 2025
+#
+# Description:
+# This script runs a simulation to assess how degree variance in a network
+# affects cultural trait retention under migration, recording cultural trait
+# frequencies over time.
+#
+# To run this script on Hábrók: 
+# - Load R 4.4.2 via the appropriate module
+# - Assign local working directory
+# - Submit via a batch script or run interactively with Rscript
+#
+# Outputs:
+# - .RDS files with time series and seed numbers saved in the specified 
+#    results directory.
+#
+# Usage:
+# - Modify parameters under "GENERAL SETTINGS" as needed
+# - Run with: Rscript this_script.R
+#
+# Part of: Cultural_Evolution repository (habrok branch)
+###############################################################################
+
 
 #############################################################################
 ############# PARAMETERS & PACKAGES #########################################
