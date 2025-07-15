@@ -16,7 +16,7 @@
 #
 # Outputs:
 # - .RDS files with time series and seed numbers saved in the specified 
-#    results directory.
+#    results_net directory.
 #
 # Usage:
 # - Modify parameters under "GENERAL SETTINGS" as needed
@@ -33,7 +33,7 @@
 popsize <- 1000
 c_r <- 0.9
 time_steps <- 10^6
-int_prob_other <- 0.5
+int_prob_other <- 0.1
 
 # SWEEPING RANGES
 migration_rates <- seq(from = 0.001, to = 0.1, by = 0.01)
@@ -62,7 +62,7 @@ invisible(lapply(required_packages, function(pkg) {
 
 experiment_number <- 2    # Experiment 2: Variance
 sim_type <- 2             # Time version
-interaction_code <- 2     # 0.5 interaction probability
+interaction_code <- 1     # 0.5 interaction probability
 model_code <- 3           # Network model
 
 variant_codes <- list("10" = 1, "20" = 2, "30" = 3)
@@ -85,14 +85,14 @@ make_neg_binom_network <- function(popsize, mean_degree, var_degree) {
 ############# SIMULATION FUNCTION ###########################################
 #############################################################################
 
-save_simulation <- function(output_path, meta_results, ts_data) {
-  saveRDS(list(metadata = meta_results, time_series = ts_data), file = output_path)
+save_simulation <- function(output_dir, file_name, results_net, time_series) {
+  saveRDS(list(summary = results_net, time_series = time_series), file = file.path(output_dir, file_name))
 }
 
-run_network_simulation <- function(output_path, variance, run_number, variant_code) {
-  results <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
-  results$seed_used <- NA_integer_
-  time_series_list <- vector("list", nrow(results))
+run_network_simulation <- function(output_dir, file_name, variance, run_number, variant_code) {
+  results_net <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
+  results_net$seed_used <- NA_integer_
+  time_series_list <- vector("list", nrow(results_net))
   
   base_seed <- experiment_number * 1e6 +
     sim_type         * 1e5 +
@@ -101,11 +101,11 @@ run_network_simulation <- function(output_path, variance, run_number, variant_co
     variant_code     * 1e2 +
     run_number
   
-  tic("Network Simulation")
-  for (i in seq_len(nrow(results))) {
+  tic(paste("Network Simulation for variance =", variance))
+  for (i in seq_len(nrow(results_net))) {
     set.seed(base_seed + i)
-    mig_rate <- results$mig_rate[i]
-    c_i <- results$c_i[i]
+    mig_rate <- results_net$mig_rate[i]
+    c_i <- results_net$c_i[i]
     
     data <- make_neg_binom_network(popsize, mean_degree, variance)
     pop <- data$network_pop
@@ -133,7 +133,7 @@ run_network_simulation <- function(output_path, variance, run_number, variant_co
       }
     }
     
-    results$seed_used[i] <- base_seed + i
+    results_net$seed_used[i] <- base_seed + i
     time_series_list[[i]] <- data.frame(
       time = seq(record_interval, time_steps, by = record_interval),
       resident_fraction = res_frac,
@@ -143,14 +143,13 @@ run_network_simulation <- function(output_path, variance, run_number, variant_co
     )
   }
   toc()
-  save_simulation(output_path, results, time_series_list)
+  save_simulation(output_dir, file_name, results_net, time_series_list)
 }
 
 #############################################################################
 ############# RUN SIMULATIONS ###############################################
 #############################################################################
-
-output_dir <- "time_seed_var_net05_r"
+output_dir <- "data_var_time"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
@@ -158,12 +157,8 @@ if (!dir.exists(output_dir)) {
 for (var in var_degree) {
   variant_code <- variant_codes[[as.character(var)]]
   for (i in 1:10) {
-    output_file <- file.path(output_dir, paste0("s_time_net05_var", var, "_run", i, ".RDS"))
-    run_network_simulation(
-      output_path = output_file,
-      variance = var,
-      run_number = i,
-      variant_code = variant_code
-    )
+    run_network_simulation(output_dir, paste0("data_time_var", var, "_run", i, ".RDS"),
+                          var, i, variant_code)
   }
 }
+
