@@ -26,7 +26,7 @@ plot05 <- plot_wellmixed(results,0.5)
 ggsave("figures/wm_0.5t.pdf", plot = plot05, width = 8, height = 6)
 
 ###################################################################
-# READING
+# READING DATA 
 
 plot_wellmixed_results01 <- function() {
   results <- readRDS("data/wellmixed01.RDS")
