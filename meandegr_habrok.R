@@ -226,7 +226,7 @@ run_network_simulation <- function(output_dir, file_name, degree, run_number, va
 
 
 # RUN ALL SIMULATIONS ------------------------------------------------------
-output_dir <- "s_deg_05_time_r"
+output_dir <- "data_meandegr"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
@@ -235,12 +235,12 @@ for (deg in mean_degree) {
   variant_code <- variant_codes[[as.character(deg)]]
 
   for (i in 1:10) {
-    run_homogeneous_simulation(output_dir, paste0("s_time_hom05_deg", deg, "_run", i, ".RDS"), deg, i, variant_code)
-    run_network_simulation(output_dir, paste0("s_time_net05_deg", deg, "_run", i, ".RDS"), deg, i, variant_code)
+    run_homogeneous_simulation(output_dir, paste0("data_hom_meandegr", deg, "_run", i, ".RDS"), deg, i, variant_code)
+    run_network_simulation(output_dir, paste0("data_net_meandegr", deg, "_run", i, ".RDS"), deg, i, variant_code)
   }
 }
 
 for (i in 1:10) {
-  run_wellmixed_simulation(output_dir, paste0("s_time_wm05_deg_run_", i, ".RDS"), NA, i, 0)
+  run_wellmixed_simulation(output_dir, paste0("data_wm_meandegr", i, ".RDS"), NA, i, 0)
 }
 
