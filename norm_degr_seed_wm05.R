@@ -1,4 +1,27 @@
-setwd("/home3/s5194326/floras_directory/degr.compare/results/seed/normal")
+###############################################################################
+# Simulation: Social Net Acculturation Model - Mean Degree Experiment (Hábrók)
+# Version: Final trait frequencies
+# Author: Flora Murakeozy-Kis
+# Date: July 2025
+#
+# Description:
+# This script runs a simulation to assess how mean degree affects cultural 
+# trait retention under migration comparatively in networks 
+# with homogeneous and heterogeneous (negative binomial) degree distributions, 
+# recording final trait frequencies. The well-mixed population 
+# is simulated only once as a control, since it is degree-invariant.
+#
+# To run this script on Hábrók: 
+# - Load R 4.4.2 via the appropriate module
+# - Assign local working directory
+# - Submit via a SLURM batch script
+#
+# Outputs:
+# - .RDS files with time series and seed numbers saved in the specified 
+#    results directory.
+#
+# Part of: Cultural_Evolution repository (habrok branch)
+###############################################################################
 
 #############################################################################
 ############# PARAMETERS & PACKAGES #########################################
