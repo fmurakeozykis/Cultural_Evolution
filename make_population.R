@@ -1,12 +1,21 @@
+################################################################################
+# Simulation: Social Net Acculturation Model - Make Random Populations
+# Author: Flora Murakeozy-Kis
+# Date: July 2025
+#
+# Description:
+# Here, the three different population structures are produced randomly.
+# Demos can be uncommented to confirm degree distribution and feautures 
+# such as variance. The network-based populations can be plotted using igraph.
+###################################################################
+# SOURCES 
+
 library(igraph)
 
-################################################################################
-###### Functions for simulating different populations ##########################
-################################################################################
+###################################################################
+# FUNCTIONS 
 
-###### Code for well-mixed population
-
-
+# WELL-MIXED POPULATION --------------------------------------------
 make_wellmixed_pop <- function(popsize,trait) {
   population <- data.frame(
   individual = 1:popsize,
@@ -14,12 +23,10 @@ make_wellmixed_pop <- function(popsize,trait) {
   return(population)
 }
 
-# demo
+#### DEMO
 #wellmixed_pop <- make_wellmixed_pop(100,"resident")
 
-################################################################################
-
-###### Code for the skewed population
+# HETEROGENEOUS POPULATION ----------------------------------------------
 
 # The "size" or dispersion/shape parameter of the negative binomial is 
 # a ratio between mean and variance.
@@ -59,7 +66,7 @@ make_neg_binom_network <- function(popsize, mean_degree, var_degree) {
 
 
 
-# demo
+#### DEMO
 # network_population <- make_neg_binom_network(1000,4,10)
 #  mean(degree(network_population$graph))
 #  var(degree(network_population$graph))
@@ -68,9 +75,8 @@ make_neg_binom_network <- function(popsize, mean_degree, var_degree) {
 # hist <- hist(degree(network_population$graph), breaks = 20, main = "Degree Distribution (Negative Binomial)",
 #              xlab = "Degree", ylab = "Frequency", xlim = range(0,20), ylim = range(0,500))
 
-################################################################################
-
-###### Code for the homogeneous population
+                     
+# HOMOGENEOUS POPULATION ----------------------------------------------
 
 make_homogeneous_network <- function(popsize, mean_degree) {
   graph <- sample_k_regular(no.of.nodes = popsize, k = mean_degree, directed = FALSE, multiple = FALSE)
@@ -83,7 +89,7 @@ make_homogeneous_network <- function(popsize, mean_degree) {
   ))
 }
 
-# demo
+#### DEMO
 # network_population <- make_homogeneous_network(1000,4)
 # mean(degree(network_population))
 # var(degree(network_population))
