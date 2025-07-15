@@ -7,7 +7,7 @@
 # Description:
 # Simulation of acculturation mechanisms in the homogeneous network produced 
 # in `make_population.R`, for both in the case of interaction probability being 
-# being equal to 0.1 and 0.5
+# being equal to 0.1 and 0.5.
 ###########################################################################
 
 # INTERACTION PROBABILITY = 0.1 ------------------------------------------
