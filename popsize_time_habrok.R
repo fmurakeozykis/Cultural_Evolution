@@ -23,7 +23,7 @@
 ###############################################################################
 
 # PARAMETERS & PACKAGES ---------------------------------------------------
-
+pop_sizes <- c(500, 1000, 1500)
 c_r <- 0.9
 time_steps <- 10^6
 int_prob_other <- 0.1
@@ -34,10 +34,13 @@ c_i_s <- seq(0, 0.9, 0.1)
 mean_degree <- 4
 var_degree <- 10
 
-required_packages <- c("igraph", "tictoc", "here")
-new_packages <- required_packages[!(required_packages %in% installed.packages()[, "Package"])]
-if (length(new_packages)) install.packages(new_packages)
-lapply(required_packages, library, character.only = TRUE)
+required_packages <- c("igraph", "here", "tictoc")
+invisible(lapply(required_packages, function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(paste("Package", pkg, "is not installed. Please install before running on Hábrók."))
+  }
+  library(pkg, character.only = TRUE)
+}))
 
 # SEED SYSTEM -------------------------------------------------------------
 experiment_number <- 1    # Experiment 1: Pop size
@@ -255,7 +258,7 @@ run_network_simulation <- function(output_dir, file_name, run_number, variant_co
 }
 
 # RUN ALL SIMULATIONS ------------------------------------------------------
-output_dir <- "seed_pop.size_time_r"
+output_dir <- "data_popsize_time"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
@@ -264,8 +267,8 @@ for (popsize in c(500, 1000, 1500)) {
   variant_code <- variant_codes[[as.character(popsize)]]
   
   for (i in 1:10) {
-    run_wellmixed_simulation(output_dir, paste0("s_popsize01_wm_pop", popsize, "_run", i, ".RDS"), i, variant_code, popsize)
-    run_homogeneous_simulation(output_dir, paste0("s_popsize01_hom_pop", popsize, "_run", i, ".RDS"), i, variant_code, popsize)
-    run_network_simulation(output_dir, paste0("s_popsize01_net_pop", popsize, "_run", i, ".RDS"), i, variant_code, popsize)
+    run_wellmixed_simulation(output_dir, paste0("data_wm_time_popsize", popsize, "_run", i, ".RDS"), i, variant_code, popsize)
+    run_homogeneous_simulation(output_dir, paste0("data_wm_time_popsize", popsize, "_run", i, ".RDS"), i, variant_code, popsize)
+    run_network_simulation(output_dir, paste0("data_wm_time_popsize", popsize, "_run", i, ".RDS"), i, variant_code, popsize)
   }
 }
