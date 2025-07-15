@@ -45,7 +45,7 @@ var_degree <- c(10, 20, 30)
 
 # TIME SERIES RECORDING
 record_interval <- 1000
-num_records <- time_steps / record_interval
+num_records <- ceiling(time_steps / record_interval)
 
 # PACKAGES
 required_packages <- c("igraph", "here", "tictoc")
