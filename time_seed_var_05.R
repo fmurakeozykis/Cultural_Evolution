@@ -12,7 +12,7 @@
 # To run this script on Hábrók: 
 # - Load R 4.4.2 via the appropriate module
 # - Assign local working directory
-# - Submit via a batch script or run interactively with Rscript
+# - Submit via a SLURM batch script
 #
 # Outputs:
 # - .RDS files with time series and seed numbers saved in the specified 
@@ -20,7 +20,6 @@
 #
 # Usage:
 # - Modify parameters under "GENERAL SETTINGS" as needed
-# - Run with: Rscript this_script.R
 #
 # Part of: Cultural_Evolution repository (habrok branch)
 ###############################################################################
