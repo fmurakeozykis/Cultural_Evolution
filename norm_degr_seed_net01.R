@@ -12,7 +12,7 @@ int_prob_other <- 0.1
 migration_rates <- seq(from = 0.001, to = 0.1, by = 0.01)
 c_i_s <- seq(0, 0.9, 0.1)
 
-mean_degree <- c(2, 8, 14, 20)
+mean_degree <- c(2, 8)
 var_degree <- 10
 
 required_packages <- c("igraph", "here", "tictoc")
