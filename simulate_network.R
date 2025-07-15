@@ -1,13 +1,13 @@
 ################################################################################
-# Simulation: Social Net Acculturation Model - Simulation of Homogeneous Network
+# Simulation: Social Net Acculturation Model - Simulation of Heterogeneous Network
 # Population
 # Author: Flora Murakeozy-Kis
 # Date: July 2025
 #
 # Description:
-# Simulation of acculturation mechanisms in the homogeneous network produced 
+# Simulation of acculturation mechanisms in the heterogeneous network produced 
 # in `make_population.R`, for both in the case of interaction probability being 
-# being equal to 0.1 and 0.5
+# being equal to 0.1 and 0.5.
 ###########################################################################
 
 # INTERACTION PROBABILITY = 0.1 ------------------------------------------
