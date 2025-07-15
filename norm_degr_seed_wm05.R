@@ -23,60 +23,62 @@
 # Part of: Cultural_Evolution repository (habrok branch)
 ###############################################################################
 
-#############################################################################
-############# PARAMETERS & PACKAGES #########################################
-#############################################################################
+# PARAMETERS & PACKAGES ---------------------------------------------------
 
 popsize <- 1000
 c_r <- 0.9
 time_steps <- 10^6
-int_prob_other <- 0.5
+int_prob_other <- 0.1
 
 migration_rates <- seq(from = 0.001, to = 0.1, by = 0.01)
 c_i_s <- seq(0, 0.9, 0.1)
 
-required_packages <- c("igraph", "here", "tictoc")
-invisible(lapply(required_packages, function(pkg) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    stop(paste("Package", pkg, "is not installed. Please install before running on Hábrók."))
-  }
-  library(pkg, character.only = TRUE)
-}))
+mean_degree <- c(2,8)
+var_degree <- 10
+
+required_packages <- c("igraph", "tictoc", "here")
+new_packages <- required_packages[!(required_packages %in% installed.packages()[, "Package"])]
+if (length(new_packages)) install.packages(new_packages)
+lapply(required_packages, library, character.only = TRUE)
 
 #############################################################################
 ############# SEED SYSTEM ###################################################
 #############################################################################
 
-experiment_number <- 3    # Experiment 3: Mean degree (still used to stay consistent)
-sim_type <- 1             # Normal version
-interaction_code <- 2     # 0.5 interaction probability
-model_code <- 1           # Well-mixed
-variant_code <- 0         # No varying variable in this context
+experiment_number <- 3    # Experiment 3: Mean degree
+sim_type <- 2             # time version
+interaction_code <- 1     # 0.1 interaction probability
 
-#############################################################################
-############# POPULATION GENERATION #########################################
-#############################################################################
+
+# Variant codes for mean degrees
+variant_codes <- list("2" = 1, "8" = 2)
+
+# POPULATION FUNCTIONS -----------------------------------------------------
 
 make_wellmixed_pop <- function(popsize, trait) {
-  data.frame(
-    individual = 1:popsize,
-    trait = rep(trait, popsize)
-  )
+  data.frame(individual = 1:popsize, trait = rep(trait, popsize))
 }
 
-#############################################################################
-############# SIMULATION FUNCTION ###########################################
-#############################################################################
+make_neg_binom_network <- function(popsize, mean_degree, var_degree) {
+  size <- (mean_degree)^2 / (var_degree - mean_degree)
+  degrees <- rnbinom(popsize, size = size, mu = mean_degree)
+  degrees[degrees == 0] <- 1
+  if (sum(degrees) %% 2 != 0) degrees[which.max(degrees)] <- degrees[which.max(degrees)] + 1
+  graph <- sample_degseq(degrees, method = "simple.no.multiple")
+  adj_list <- lapply(1:popsize, function(v) as.integer(neighbors(graph, v)))
+  list(graph_net = graph, network_pop = rep("resident", popsize), adj_list_net = adj_list)
+}
 
-run_wellmixed_simulation01 <- function(output_path, run_number) {
-  results_wm <- expand.grid(
-    mig_rate = migration_rates,
-    c_i = c_i_s
-  )
-  
-  results_wm$resident_fraction <- NA_real_
-  results_wm$seed_used <- NA_integer_
-  
+make_homogeneous_network <- function(popsize, mean_degree) {
+  graph <- sample_k_regular(n = popsize, k = mean_degree, directed = FALSE, multiple = FALSE)
+  adj_list <- lapply(1:popsize, function(v) as.integer(neighbors(graph, v)))
+  list(graph = graph, hom_pop = rep("resident", popsize), adj_list_hom = adj_list)
+}
+
+# SIMULATION FUNCTIONS -----------------------------------------------------
+
+run_wellmixed_simulation <-function(output_dir, file_name, degree, run_number, variant_code) {
+  model_code <- 1         
   base_seed <- experiment_number * 1e6 +
     sim_type         * 1e5 +
     interaction_code * 1e4 +
@@ -84,57 +86,161 @@ run_wellmixed_simulation01 <- function(output_path, run_number) {
     variant_code     * 1e2 +
     run_number
   
-  tic(paste("Well-mixed Simulation Run", run_number))
+  results_wm <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
+  results_wm$resident_fraction <- NA_real_
+  results_wm$seed_used <- NA_integer_
+  
+  tic(paste("Well-mixed Simulation for degree =", degree))
   for (i in seq_len(nrow(results_wm))) {
     set.seed(base_seed + i)
     
     mig_rate <- results_wm$mig_rate[i]
     c_i <- results_wm$c_i[i]
-    
-    wellmixed_pop <- make_wellmixed_pop(popsize, "resident")
+    pop <- make_wellmixed_pop(popsize, "resident")
     
     for (t in seq_len(time_steps)) {
       is_migrating <- runif(1) < mig_rate
-      focal_ind <- sample(popsize, 1)
+      focal <- sample(popsize, 1)
       
       if (is_migrating) {
-        wellmixed_pop$trait[focal_ind] <- "immigrant"
+        pop$trait[focal] <- "immigrant"
       } else {
-        repeat {
-          int_part <- sample(popsize, 1)
-          if (int_part != focal_ind) break
-        }
-        if (wellmixed_pop$trait[focal_ind] != wellmixed_pop$trait[int_part] &&
-            runif(1) < int_prob_other) {
-          change_prob <- if (wellmixed_pop$trait[focal_ind] == "resident") (1 - c_r) else (1 - c_i)
+        repeat { 
+          int_part <- sample(popsize, 1) 
+          if (int_part != focal) break 
+          }
+        if (pop$trait[focal] != pop$trait[int_part] && runif(1) < int_prob_other) {
+          change_prob <- ifelse(pop$trait[focal] == "resident", 1 - c_r, 1 - c_i)
           if (runif(1) < change_prob) {
-            wellmixed_pop$trait[focal_ind] <- ifelse(
-              wellmixed_pop$trait[focal_ind] == "resident", "immigrant", "resident"
-            )
+            pop$trait[focal] <- ifelse(pop$trait[focal] == "resident", "immigrant", "resident")
           }
         }
       }
     }
     
-    results_wm$resident_fraction[i] <- sum(wellmixed_pop$trait == "resident") / popsize
+    results_wm$resident_fraction[i] <- sum(pop$trait == "resident") / popsize
     results_wm$seed_used[i] <- base_seed + i
   }
   toc()
   
-  saveRDS(results_wm, file = output_path)
+  saveRDS(results_wm, file = file.path(output_dir, file_name))
 }
 
-#############################################################################
-############# RUN SIMULATIONS ###############################################
-#############################################################################
+run_homogeneous_simulation <- function(output_dir, file_name, degree, run_number, variant_code) {
+  model_code <- 2
+  base_seed <- experiment_number * 1e6 +
+    sim_type         * 1e5 +
+    interaction_code * 1e4 +
+    model_code       * 1e3 +
+    variant_code     * 1e2 +
+    run_number
+  
+  results_hom <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
+  results_hom$resident_fraction <- NA_real_
+  results_hom$seed_used <- NA_integer_
+  
+  tic("Homogeneous Simulation")
+  for (i in seq_len(nrow(results_hom))) {
+    set.seed(base_seed + i)
+    
+    mig_rate <- results_hom$mig_rate[i]
+    c_i <- results_hom$c_i[i]
+    
+    data <- make_homogeneous_network(popsize, degree)
+    pop <- data$hom_pop
+    adj <- data$adj_list_hom
+    
+    for (t in seq_len(time_steps)) {
+      is_migrating <- runif(1) < mig_rate
+      focal <- sample.int(popsize, 1)
+      
+      if (is_migrating) {
+        pop[focal] <- "immigrant"
+      } else {
+        neighbor <- adj[[focal]][sample.int(length(adj[[focal]]), 1)]
+        if (pop[focal] != pop[neighbor] && runif(1) < int_prob_other) {
+          change_prob <- ifelse(pop[focal] == "resident", 1 - c_r, 1 - c_i)
+          if (runif(1) < change_prob) {
+            pop[focal] <- ifelse(pop[focal] == "resident", "immigrant", "resident")
+          }
+        }
+      }
+    }
 
-output_dir <- "s_deg_wm05_normal_r"
+    results_hom$resident_fraction[i] <- sum(pop == "resident") / popsize
+    results_hom$seed_used[i] <- base_seed + i
+  }
+  toc()
+  
+  saveRDS(results_hom, file = file.path(output_dir, file_name))
+}
+
+run_network_simulation <- function(output_dir, file_name, degree, run_number, variant_code) {
+  model_code <- 3
+  base_seed <- experiment_number * 1e6 +
+    sim_type         * 1e5 +
+    interaction_code * 1e4 +
+    model_code       * 1e3 +
+    variant_code     * 1e2 +
+    run_number
+  
+  results_net <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
+  results_net$resident_fraction <- NA_real_
+  results_net$seed_used <- NA_integer_
+  
+  tic("Network Simulation")
+  for (i in seq_len(nrow(results_net))) {
+    set.seed(base_seed + i)
+    
+    mig_rate <- results_net$mig_rate[i]
+    c_i <- results_net$c_i[i]
+    
+    data <- make_neg_binom_network(popsize, degree, var_degree)
+    pop <- data$network_pop
+    adj <- data$adj_list_net
+    
+    for (t in seq_len(time_steps)) {
+      is_migrating <- runif(1) < mig_rate
+      focal <- sample.int(popsize, 1)
+      
+      if (is_migrating) {
+        pop[focal] <- "immigrant"
+      } else {
+        neighbor <- adj[[focal]][sample.int(length(adj[[focal]]), 1)]
+        if (pop[focal] != pop[neighbor] && runif(1) < int_prob_other) {
+          change_prob <- ifelse(pop[focal] == "resident", 1 - c_r, 1 - c_i)
+          if (runif(1) < change_prob) {
+            pop[focal] <- ifelse(pop[focal] == "resident", "immigrant", "resident")
+          }
+        }
+      }
+    }
+
+    results_net$resident_fraction[i] <- sum(pop == "resident") / popsize
+    results_net$seed_used[i] <- base_seed + i
+  }
+  toc()
+  
+  saveRDS(results_net, file = file.path(output_dir, file_name))
+}
+
+
+# RUN ALL SIMULATIONS ------------------------------------------------------
+output_dir <- "s_deg_05_time_r"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
+for (deg in mean_degree) {
+  variant_code <- variant_codes[[as.character(deg)]]
+
+  for (i in 1:10) {
+    run_homogeneous_simulation(output_dir, paste0("s_time_hom05_deg", deg, "_run", i, ".RDS"), deg, i, variant_code)
+    run_network_simulation(output_dir, paste0("s_time_net05_deg", deg, "_run", i, ".RDS"), deg, i, variant_code)
+  }
+}
+
 for (i in 1:10) {
-  output_file <- file.path(output_dir, paste0("s_norm_wm05_deg_run_", i, ".RDS"))
-  run_wellmixed_simulation01(output_path = output_file, run_number = i)
+  run_wellmixed_simulation(output_dir, paste0("s_time_wm05_deg_run_", i, ".RDS"), NA, i, 0)
 }
 
