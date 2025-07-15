@@ -222,7 +222,7 @@ run_network_simulation <- function(output_dir, file_name, run_number, variant_co
 }
 
 # RUN ALL SIMULATIONS ------------------------------------------------------
-output_dir <- "seed_pop.size_norm_r"
+output_dir <- "data_popsize"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
@@ -231,8 +231,8 @@ for (psize in pop_sizes) {
   variant_code <- variant_codes[[as.character(psize)]]
   
   for (i in 1:10) {
-    run_wellmixed_simulation(output_dir, paste0("norm_popsize01_wm_pop", psize, "_run", i, ".RDS"), i, variant_code, psize)
-    run_homogeneous_simulation(output_dir, paste0("norm_popsize01_hom_pop", psize, "_run", i, ".RDS"), i, variant_code, psize)
-    run_network_simulation(output_dir, paste0("norm_popsize01_net_pop", psize, "_run", i, ".RDS"), i, variant_code, psize)
+    run_wellmixed_simulation(output_dir, paste0("data_wm_popsize", psize, "_run", i, ".RDS"), i, variant_code, psize)
+    run_homogeneous_simulation(output_dir, paste0("data_hom_popsize", psize, "_run", i, ".RDS"), i, variant_code, psize)
+    run_network_simulation(output_dir, paste0("data_net_popsize", psize, "_run", i, ".RDS"), i, variant_code, psize)
   }
 }
