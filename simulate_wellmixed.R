@@ -14,36 +14,55 @@
 run_wellmixed_simulation01 <- function(output_path = "data/wellmixed01.RDS") {
    source("parameters.R")
    source("make_population.R")
-   library(tictoc)
-   
+   library(tictoc) # Allows for the measurement of simulation time
+
+   # This creates a grid of every combination of the two variables.
    results_wm <- expand.grid(
      mig_rate = migration_rates,
      c_i = c_i_s
    )
-   
+
+   # This creates an empty column in the results_hom dataframe
+   # where final resident trait frequencies will be stored.
    results_wm$resident_fraction <- NA_real_
    
-   tic("Simulation")
+   tic("Simulation Well-Mixed Int01")
+   # This loops over every parameter combination in the grid.
    for (i in seq_len(nrow(results_wm))) {
+   # Notes down the currrent parameter values in the results dataframe.
      mig_rate <- results_wm$mig_rate[i]
      c_i <- results_wm$c_i[i]
-     
+
+     # Generates the population.
      wellmixed_pop <- make_wellmixed_pop(popsize, "resident")
-     
+
+    # The simulation with the population starts here, 
+    # and stops when all time steps have been looped over.
      for (t in seq_len(time_steps)) {
+      # Determiens whether migration will take place based on the
+      # probability mig_rate.
        is_migrating <- runif(1) < mig_rate
+       # Focal individual is sampled from the population.
        focal_ind <- sample(popsize, 1)
-       
+
+       # Migration event: focal individual is replaced by an immigrant.
        if (is_migrating) {
          wellmixed_pop$trait[focal_ind] <- "immigrant"
+      # Interaction event: focal individual is paired up with an individual sampled 
+      # from the population.
        } else {
          repeat {
            int_part <- sample(popsize, 1)
-           if (int_part != focal_ind) break
+           if (int_part != focal_ind) break # Ensures the interaction partner is
+            # different from the focal individual.
          }
+          # Interaction can only happen if the two differ in culture.
          if (wellmixed_pop$trait[focal_ind] != wellmixed_pop$trait[int_part]) {
+             # Determines if interaction will occur based on interaction tendency.
            if (runif(1) < int_prob_other) {
              change_prob <- if (wellmixed_pop$trait[focal_ind] == "resident") (1 - c_r) else (1 - c_i)
+              # Determines if the focal individual will take over its partner's trait
+              # based on cultural conservatism (change_prob).
              if (runif(1) < change_prob) {
                wellmixed_pop$trait[focal_ind] <- ifelse(
                  wellmixed_pop$trait[focal_ind] == "resident", "immigrant", "resident"
@@ -53,7 +72,8 @@ run_wellmixed_simulation01 <- function(output_path = "data/wellmixed01.RDS") {
          }
        }
      }
-     
+
+      # Results are saved in the results dataframe and saved as an .RDS file.
      results_wm$resident_fraction[i] <- sum(wellmixed_pop$trait == "resident") / popsize
    }
    toc()
@@ -75,7 +95,7 @@ run_wellmixed_simulation01 <- function(output_path = "data/wellmixed01.RDS") {
    
    results_wm$resident_fraction <- NA_real_
    
-   tic("Simulation")
+   tic("Simulation Well-Mixed Int05")
    for (i in seq_len(nrow(results_wm))) {
      mig_rate <- results_wm$mig_rate[i]
      c_i <- results_wm$c_i[i]
