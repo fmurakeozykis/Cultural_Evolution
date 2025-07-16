@@ -47,14 +47,12 @@ new_packages <- required_packages[!(required_packages %in% installed.packages()[
 if (length(new_packages)) install.packages(new_packages)
 lapply(required_packages, library, character.only = TRUE)
 
-#############################################################################
-############# SEED SYSTEM ###################################################
-#############################################################################
+# SEED  SYSTEM -------------------------------------------------------------
 ## Ensures a new random seed is used for every run, throughout all experiments.
 
 experiment_number <- 3    # Experiment 3: Mean degree
-sim_type <- 2             # Timeseries version
-interaction_code <- 1     # Interaction tendency 0.1 -> 1, 0.5 -> 2
+sim_type <- 1             # Final frequencies version -> 1; Timeseries version -> 2
+interaction_code <- 1     # Interaction tendency 0.1 -> 1; 0.5 -> 2
 
 # Variant codes for mean degrees
 variant_codes <- list("2" = 1, "8" = 2)
@@ -87,7 +85,8 @@ make_homogeneous_network <- function(popsize, mean_degree) {
 
 ##### Well-mixed                     
 run_wellmixed_simulation <-function(output_dir, file_name, degree, run_number, variant_code) {
-  model_code <- 1         
+ # Create base seed
+  model_code <- 1  
   base_seed <- experiment_number * 1e6 +
     sim_type         * 1e5 +
     interaction_code * 1e4 +
@@ -156,6 +155,7 @@ run_wellmixed_simulation <-function(output_dir, file_name, degree, run_number, v
 
 ##### Homogeneous Network                  
 run_homogeneous_simulation <- function(output_dir, file_name, degree, run_number, variant_code) {
+  # Create base seed
   model_code <- 2
   base_seed <- experiment_number * 1e6 +
     sim_type         * 1e5 +
@@ -163,31 +163,48 @@ run_homogeneous_simulation <- function(output_dir, file_name, degree, run_number
     model_code       * 1e3 +
     variant_code     * 1e2 +
     run_number
-  
+
+  # Create grid with every combination of the parameter sweeps.
   results_hom <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
+  # Create empty columns where resident fractions and seed numbers will  be stored
+  # of every run of every parameter combination.
   results_hom$resident_fraction <- NA_real_
   results_hom$seed_used <- NA_integer_
   
   tic(paste("Homogeneous Simulation for degree =", degree))
+  # This loops over every parameter combination in the grid.
   for (i in seq_len(nrow(results_hom))) {
     set.seed(base_seed + i)
-    
+
+    # Notes down the currrent parameter values in the results dataframe.
     mig_rate <- results_hom$mig_rate[i]
     c_i <- results_hom$c_i[i]
-    
+    # Generate the homogeneous network
     data <- make_homogeneous_network(popsize, degree)
     pop <- data$hom_pop
     adj <- data$adj_list_hom
-    
+
+    # The simulation starts here and continues for every parameter combination.
     for (t in seq_len(time_steps)) {
+      # Determiens whether migration will take place based on the
+      # probability mig_rate.
       is_migrating <- runif(1) < mig_rate
+      # Focal individual is sampled from the population.
       focal <- sample.int(popsize, 1)
-      
+
+      # For every time step, one of two events happen.
+      # Migration event: focal individual is replaced by an immigrant.
       if (is_migrating) {
         pop[focal] <- "immigrant"
       } else {
+      # Interaction event: focal individual is paired up with an individual is sampled 
+      # from the list of the focal individual's neighbours.
         neighbor <- adj[[focal]][sample.int(length(adj[[focal]]), 1)]
+        # Interaction can only happen if the two differ in culture.
+        # Determines if interaction will occur based on interaction tendency.
         if (pop[focal] != pop[neighbor] && runif(1) < int_prob_other) {
+        # Determines if the focal individual will take over its partner's trait
+        # based on cultural conservatism (change_prob).
           change_prob <- ifelse(pop[focal] == "resident", 1 - c_r, 1 - c_i)
           if (runif(1) < change_prob) {
             pop[focal] <- ifelse(pop[focal] == "resident", "immigrant", "resident")
@@ -195,7 +212,7 @@ run_homogeneous_simulation <- function(output_dir, file_name, degree, run_number
         }
       }
     }
-
+    # Results are saved in the results dataframe and saved as an .RDS file.
     results_hom$resident_fraction[i] <- sum(pop == "resident") / popsize
     results_hom$seed_used[i] <- base_seed + i
   }
