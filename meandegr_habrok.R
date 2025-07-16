@@ -223,6 +223,7 @@ run_homogeneous_simulation <- function(output_dir, file_name, degree, run_number
 
 ##### Heterogeneous Network                       
 run_network_simulation <- function(output_dir, file_name, degree, run_number, variant_code) {
+  # Create base seed
   model_code <- 3
   base_seed <- experiment_number * 1e6 +
     sim_type         * 1e5 +
@@ -230,31 +231,48 @@ run_network_simulation <- function(output_dir, file_name, degree, run_number, va
     model_code       * 1e3 +
     variant_code     * 1e2 +
     run_number
-  
+
+  # Create grid with every combination of the parameter sweeps.
   results_net <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
+  # Create empty columns where resident fractions and seed numbers will  be stored
+  # of every run of every parameter combination.
   results_net$resident_fraction <- NA_real_
   results_net$seed_used <- NA_integer_
   
   tic(paste("Network Simulation for degree =", degree))
+  # This loops over every parameter combination in the grid.
   for (i in seq_len(nrow(results_net))) {
     set.seed(base_seed + i)
-    
+
+    # Notes down the current parameter values in the results dataframe.
     mig_rate <- results_net$mig_rate[i]
     c_i <- results_net$c_i[i]
-    
+    # Generate the heterogeneous network
     data <- make_neg_binom_network(popsize, degree, var_degree)
     pop <- data$network_pop
     adj <- data$adj_list_net
-    
+
+    # The simulation starts here and continues for every parameter combination.
     for (t in seq_len(time_steps)) {
+      # Determiens whether migration will take place based on the
+      # probability mig_rate.
       is_migrating <- runif(1) < mig_rate
+      # Focal individual is sampled from the population.
       focal <- sample.int(popsize, 1)
-      
+
+      # For every time step, one of two events happen.
+      # Migration event: focal individual is replaced by an immigrant.
       if (is_migrating) {
         pop[focal] <- "immigrant"
       } else {
+      # Interaction event: focal individual is paired up with an individual is sampled 
+      # from the list of the focal individual's neighbours.
         neighbor <- adj[[focal]][sample.int(length(adj[[focal]]), 1)]
+        # Interaction can only happen if the two differ in culture.
+        # Determines if interaction will occur based on interaction tendency.
         if (pop[focal] != pop[neighbor] && runif(1) < int_prob_other) {
+        # Determines if the focal individual will take over its partner's trait
+        # based on cultural conservatism (change_prob). 
           change_prob <- ifelse(pop[focal] == "resident", 1 - c_r, 1 - c_i)
           if (runif(1) < change_prob) {
             pop[focal] <- ifelse(pop[focal] == "resident", "immigrant", "resident")
@@ -262,7 +280,7 @@ run_network_simulation <- function(output_dir, file_name, degree, run_number, va
         }
       }
     }
-
+    # Results are saved in the results dataframe and saved as an .RDS file.
     results_net$resident_fraction[i] <- sum(pop == "resident") / popsize
     results_net$seed_used[i] <- base_seed + i
   }
