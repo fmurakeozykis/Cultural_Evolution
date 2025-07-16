@@ -57,7 +57,7 @@ run_homogeneous_simulation01 <- function(output_path = "data/hom01.RDS") {
         neighbors <- adj_list_hom[[focal_ind]]
         int_part <- neighbors[sample.int(length(neighbors), 1)]
 
-        # Interaction can omly happen if the two differ in culture.
+        # Interaction can only happen if the two differ in culture.
         if (hom_pop[focal_ind] != hom_pop[int_part]) {
           # Determines if interaction will occur based on interaction tendency.
           if (runif(1) < int_prob_other) {
