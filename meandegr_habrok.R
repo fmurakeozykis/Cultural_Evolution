@@ -46,11 +46,13 @@ mean_degree <- c(2,8)
 var_degree <- 10
 
 # PACKAGES -----------------------------------------------------
-required_packages <- c("igraph", "tictoc", "here")
-new_packages <- required_packages[!(required_packages %in% installed.packages()[, "Package"])]
-if (length(new_packages)) install.packages(new_packages)
-lapply(required_packages, library, character.only = TRUE)
-
+required_packages <- c("igraph", "here", "tictoc")
+invisible(lapply(required_packages, function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(paste("Package", pkg, "is not installed. Please install before running on Hábrók."))
+  }
+  library(pkg, character.only = TRUE)
+}))
 # SEED  SYSTEM -------------------------------------------------------------
 ## Ensures a new random seed is used for every run, throughout all experiments.
 
