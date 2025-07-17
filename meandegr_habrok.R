@@ -85,8 +85,6 @@ make_homogeneous_network <- function(popsize, mean_degree) {
 
 # SIMULATION FUNCTIONS -----------------------------------------------------
 
-# Seed system
-
 ##### Well-mixed                     
 run_wellmixed_simulation <-function(output_dir, file_name, degree, run_number, variant_code) {
  # Create base seed
