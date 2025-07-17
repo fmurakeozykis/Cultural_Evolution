@@ -301,15 +301,15 @@ if (!dir.exists(output_dir)) {
 
 for (i in 1:10) {
   file_name <- paste0("data_popstruc_wm_run", i, ".RDS")
-  run_wellmixed_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code)
+  run_wellmixed_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code, popsize = pop_size
 }
 
 for (i in 1:10) {
   file_name <- paste0("data_popstruc_hom_run", i, ".RDS")
-  run_homogeneous_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code)
+  run_homogeneous_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code, popsize = pop_size)
 }
 
 for (i in 1:10) {
   file_name <- paste0("data_popstruc_net_run", i, ".RDS")
-  run_network_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code)
+  run_network_simulation(output_dir, file_name = file_name, run_number = i, variant_code = variant_code, popsize = pop_size)
 }
