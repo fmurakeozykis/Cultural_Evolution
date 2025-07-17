@@ -107,7 +107,7 @@ run_network_simulation <- function(output_dir, file_name, variance, run_number, 
   # Create empty column where seed numbers will  be stored
   # of every run of every parameter combination.
   results_net$seed_used <- NA_integer_
-  # Create as many lists as there are parameter combinattions. 
+  # Create as many lists as there are parameter combinations. 
   # One list will contain all snapshot resident trait frequencies for 
   # one parameter combination.
   time_series_list <- vector("list", nrow(results_net))
@@ -118,7 +118,7 @@ run_network_simulation <- function(output_dir, file_name, variance, run_number, 
   for (i in seq_len(nrow(results_net))) {
     set.seed(base_seed + i)
 
-    # Notes down the currrent parameter values in the results dataframe.
+    # Notes down the current parameter values in the results dataframe.
     mig_rate <- results_net$mig_rate[i]
     c_i <- results_net$c_i[i]
     # Generate the well-mixed population
@@ -185,8 +185,7 @@ if (!dir.exists(output_dir)) {
 for (var in var_degree) {
   variant_code <- variant_codes[[as.character(var)]]
   for (i in 1:10) {
-    run_network_simulation(output_dir, paste0("data_time_var", var, "_run", i, ".RDS"),
+    run_network_simulation(output_dir, paste0("data_time_net_var", var, "_run", i, ".RDS"),
                           var, i, variant_code)
   }
 }
-
