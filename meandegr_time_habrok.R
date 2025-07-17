@@ -11,6 +11,10 @@
 # recording cultural trait frequencies over time. The well-mixed population 
 # is simulated only once as a control, since it is degree-invariant.
 #
+# The timeseries versions record both the final resident trait frequencies, as 
+# well as the the frequencies over time with an adjusteable precision. For a faster
+# access to data, the final trait frequency version is recommended. 
+#
 # To run this script on Hábrók: 
 # - Load R 4.4.2 via the appropriate module
 # - Assign local working directory
@@ -227,6 +231,78 @@ run_homogeneous_simulation <- function(file_name, degree, run_number, variant_co
           }
         }
       }
+      # For every timepoint that is a multiple of the given time interval, resident fraction is recorded
+      # in a the res_frac vector, at the index given by the multiple of the interval that the simulation is at.
+      if (t %% record_interval == 0) res_frac[t / record_interval] <- sum(pop == "resident") / popsize
+    }
+    # Results are saved in the results dataframe and saved as an .RDS file.
+    results$seed_used[i] <- base_seed + i
+    time_series_list[[i]] <- data.frame(time = seq(record_interval, time_steps, by = record_interval),
+                                        resident_fraction = res_frac, mig_rate = mig_rate, c_i = c_i, sim_id = i)
+  }
+  toc()
+  save_simulation(file_name, results, time_series_list)
+}
+
+##### Homogeneous Network 
+run_network_simulation <- function(file_name, degree, run_number, variant_code) {
+  # Create base seed
+  model_code <- 3
+  base_seed <- experiment_number * 1e6 +
+    sim_type         * 1e5 +
+    interaction_code * 1e4 +
+    model_code       * 1e3 +
+    variant_code     * 1e2 +
+    run_number
+
+  # Create grid with every combination of the parameter sweeps.
+  results <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
+  # Create empty columns where resident fractions and seed numbers will  be stored
+  # of every run of every parameter combination.
+  results$seed_used <- NA_integer_
+  time_series_list <- vector("list", nrow(results))
+  
+  tic("Network Simulation")
+  # This loops over every parameter combination in the grid.
+  for (i in seq_len(nrow(results))) {
+    set.seed(base_seed + i)
+
+   # Notes down the current parameter values in the results dataframe.
+    mig_rate <- results$mig_rate[i]
+    c_i <- results$c_i[i]
+    # Generate the heterogeneous network
+    data <- make_neg_binom_network(popsize, degree, var_degree)
+    pop <- data$network_pop
+    adj <- data$adj_list_net
+    res_frac <- numeric(num_records)
+
+    # The simulation starts here and continues for every parameter combination.
+    for (t in seq_len(time_steps)) {
+      # Determiens whether migration will take place based on the
+      # probability mig_rate.
+      is_migrating <- runif(1) < mig_rate
+      # Focal individual is sampled from the population.
+      focal <- sample.int(popsize, 1)
+
+      # For every time step, one of two events happen.
+      # Migration event: focal individual is replaced by an immigrant
+      if (is_migrating) {
+        pop[focal] <- "immigrant"
+      } else {
+      # Interaction event: focal individual is paired up with an individual is sampled 
+      # from the list of the focal individual's neighbours.
+        neighbor <- adj[[focal]][sample.int(length(adj[[focal]]), 1)]
+        # Interaction can only happen if the two differ in culture.
+        # Determines if interaction will occur based on interaction tendency.
+        if (pop[focal] != pop[neighbor] && runif(1) < int_prob_other) {
+        # Determines if the focal individual will take over its partner's trait
+        # based on cultural conservatism (change_prob).
+          change_prob <- ifelse(pop[focal] == "resident", 1 - c_r, 1 - c_i)
+          if (runif(1) < change_prob) {
+            pop[focal] <- ifelse(pop[focal] == "resident", "immigrant", "resident")
+          }
+        }
+      }
       
       if (t %% record_interval == 0) res_frac[t / record_interval] <- sum(pop == "resident") / popsize
     }
@@ -239,68 +315,18 @@ run_homogeneous_simulation <- function(file_name, degree, run_number, variant_co
   save_simulation(file_name, results, time_series_list)
 }
 
-run_network_simulation <- function(file_name, degree, run_number, variant_code) {
-  model_code <- 3
-  base_seed <- experiment_number * 1e6 +
-    sim_type         * 1e5 +
-    interaction_code * 1e4 +
-    model_code       * 1e3 +
-    variant_code     * 1e2 +
-    run_number
-  
-  results <- expand.grid(mig_rate = migration_rates, c_i = c_i_s)
-  results$seed_used <- NA_integer_
-  time_series_list <- vector("list", nrow(results))
-  
-  tic("Network Simulation")
-  for (i in seq_len(nrow(results))) {
-    set.seed(base_seed + i)
-    mig_rate <- results$mig_rate[i]
-    c_i <- results$c_i[i]
-    data <- make_neg_binom_network(popsize, degree, var_degree)
-    pop <- data$network_pop
-    adj <- data$adj_list_net
-    res_frac <- numeric(num_records)
-    
-    for (t in seq_len(time_steps)) {
-      is_migrating <- runif(1) < mig_rate
-      focal <- sample.int(popsize, 1)
-      
-      if (is_migrating) {
-        pop[focal] <- "immigrant"
-      } else {
-        neighbor <- adj[[focal]][sample.int(length(adj[[focal]]), 1)]
-        if (pop[focal] != pop[neighbor] && runif(1) < int_prob_other) {
-          change_prob <- ifelse(pop[focal] == "resident", 1 - c_r, 1 - c_i)
-          if (runif(1) < change_prob) {
-            pop[focal] <- ifelse(pop[focal] == "resident", "immigrant", "resident")
-          }
-        }
-      }
-      
-      if (t %% record_interval == 0) res_frac[t / record_interval] <- sum(pop == "resident") / popsize
-    }
-    
-    results$seed_used[i] <- base_seed + i
-    time_series_list[[i]] <- data.frame(time = seq(record_interval, time_steps, by = record_interval),
-                                        resident_fraction = res_frac, mig_rate = mig_rate, c_i = c_i, sim_id = i)
-  }
-  toc()
-  save_simulation(file_name, results, time_series_list)
-}
-
 
 # RUN ALL SIMULATIONS ------------------------------------------------------
-
+# Output directory
 output_dir <- "data_meandegr_time"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-
+# Loops over every degree setting.
 for (deg in mean_degree) {
   variant_code <- variant_codes[[as.character(deg)]]
-  
+  # The network simulations is run for each of these settings, since they are affected by it.
   for (i in 1:10) {
     file_name <- paste0("data_time_hom_meandegr", deg, "_run", i, ".RDS")
     run_homogeneous_simulation(file_name = file_name, degree = deg, run_number = i, variant_code = variant_code)
@@ -311,7 +337,7 @@ for (deg in mean_degree) {
     run_network_simulation(file_name = file_name, degree = deg, run_number = i, variant_code = variant_code)
   }
 }
-
+# The well-mixed simulation is run once as a control, as it is not affected by the mean degree.
 for (i in 1:10) {
   file_name <- paste0("data_time_wm_meandegr", i, ".RDS")
   run_wellmixed_simulation(file_name = file_name, degree = deg, run_number = i, variant_code = variant_code)
