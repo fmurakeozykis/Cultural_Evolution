@@ -118,7 +118,7 @@ run_wellmixed_simulation <- function(output_dir, file_name, run_number, variant_
   # one parameter combination.
   time_series_list <- vector("list", nrow(results))
   
-  tic("Well-mixed Simulation")
+  tic(paste("Well-mixed Simulation for popsize =", popsize))
   # This loops over every parameter combination in the grid.
   for (i in seq_len(nrow(results))) {
     set.seed(base_seed + i)
@@ -194,7 +194,7 @@ run_homogeneous_simulation <- function(output_dir, file_name, run_number, varian
   results$seed_used <- NA_integer_
   time_series_list <- vector("list", nrow(results))
   
-  tic("Homogeneous Simulation")
+  tic(paste("Homogeneous Simulation for popsize =", popsize))
   # This loops over every parameter combination in the grid.
   for (i in seq_len(nrow(results))) {
     set.seed(base_seed + i)
@@ -274,7 +274,7 @@ run_network_simulation <- function(output_dir, file_name, run_number, variant_co
   results$seed_used <- NA_integer_
   time_series_list <- vector("list", nrow(results))
   
-  tic("Network Simulation")
+  tic(paste("Heterogeneous Simulation for popsize =", popsize))
   # This loops over every parameter combination in the grid.
   for (i in seq_len(nrow(results))) {
     set.seed(base_seed + i)
