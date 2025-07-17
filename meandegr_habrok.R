@@ -11,6 +11,10 @@
 # recording final trait frequencies. The well-mixed population 
 # is simulated only once as a control, since it is degree-invariant.
 #
+# The timeseries versions record both the final resident trait frequencies, as 
+# well as the the frequencies over time with an adjusteable precision. For a faster
+# access to data, the final trait frequency version is recommended. 
+#
 # To run this script on Hábrók: 
 # - Load R 4.4.2 via the appropriate module
 # - Assign local working directory
