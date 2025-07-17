@@ -59,7 +59,7 @@ experiment_number <- 1    # Experiment 1: Pop size
 sim_type <- 1             # Final frequencies version -> 1; Timeseries version -> 2
 interaction_code <- 1     # Interaction tendency 0.1 -> 1; 0.5 -> 2
 
-# Variant codes: 1 = popsize 500, 2 = 1000, 3 = 1500
+# Variant codes for population size
 variant_codes <- list("500" = 1, "1000" = 2, "1500" = 3)
 
 # POPULATION FUNCTIONS -----------------------------------------------------
