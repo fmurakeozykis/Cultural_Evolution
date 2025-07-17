@@ -63,11 +63,11 @@ interaction_code <- 1     # Interaction tendency 0.1 -> 1; 0.5 -> 2
 variant_codes <- list("500" = 1, "1000" = 2, "1500" = 3)
 
 # POPULATION FUNCTIONS -----------------------------------------------------
-# Generates the well-mixed population
+# Generates the well-mixed population.
 make_wellmixed_pop <- function(popsize, trait) {
   data.frame(individual = 1:popsize, trait = rep(trait, popsize))
 }
-# Generates the heterogeneous network population
+# Generates the heterogeneous network population.
 make_neg_binom_network <- function(popsize, mean_degree, var_degree) {
   size <- (mean_degree)^2 / (var_degree - mean_degree)
   degrees <- rnbinom(popsize, size = size, mu = mean_degree)
@@ -77,7 +77,7 @@ make_neg_binom_network <- function(popsize, mean_degree, var_degree) {
   adj_list <- lapply(1:popsize, function(v) as.integer(neighbors(graph, v)))
   list(graph_net = graph, network_pop = rep("resident", popsize), adj_list_net = adj_list)
 }
-# Generates the homogeneous network population
+# Generates the homogeneous network population.
 make_homogeneous_network <- function(popsize, mean_degree) {
   graph <- sample_k_regular(n = popsize, k = mean_degree, directed = FALSE, multiple = FALSE)
   adj_list <- lapply(1:popsize, function(v) as.integer(neighbors(graph, v)))
@@ -88,7 +88,7 @@ make_homogeneous_network <- function(popsize, mean_degree) {
 
 ##### Well-mixed  
 run_wellmixed_simulation <- function(output_dir, file_name, run_number, variant_code, popsize) {
- # Create base seed
+ # Create base seed.
   model_code <- 1
   base_seed <- experiment_number * 1e6 +
     sim_type         * 1e5 +
@@ -187,7 +187,7 @@ run_homogeneous_simulation <- function(output_dir, file_name, run_number, varian
 
     # The simulation starts here and continues for every parameter combination.
     for (t in seq_len(time_steps)) {
-      # Determiens whether migration will take place based on the
+      # Determines whether migration will take place based on the
       # probability mig_rate.
       is_migrating <- runif(1) < mig_rate
       # Focal individual is sampled from the population.
@@ -224,7 +224,7 @@ run_homogeneous_simulation <- function(output_dir, file_name, run_number, varian
 
 ##### Heterogeneous Network                     
 run_network_simulation <- function(output_dir, file_name, run_number, variant_code, popsize) {
-  # Create base seed
+  # Create base seed.
   model_code <- 3
   base_seed <- experiment_number * 1e6 +
     sim_type         * 1e5 +
