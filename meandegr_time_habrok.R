@@ -193,7 +193,7 @@ run_homogeneous_simulation <- function(file_name, degree, run_number, variant_co
   results$seed_used <- NA_integer_
   time_series_list <- vector("list", nrow(results))
   
-  tic("Homogeneous Simulation")
+  tic(paste("Homogeneous Simulation for degree =", degree))
   # This loops over every parameter combination in the grid.
   for (i in seq_len(nrow(results))) {
     set.seed(base_seed + i)
@@ -265,7 +265,7 @@ run_network_simulation <- function(file_name, degree, run_number, variant_code) 
   results$seed_used <- NA_integer_
   time_series_list <- vector("list", nrow(results))
   
-  tic("Network Simulation")
+  tic(paste("Heterogeneous Simulation for degree =", degree))
   # This loops over every parameter combination in the grid.
   for (i in seq_len(nrow(results))) {
     set.seed(base_seed + i)
