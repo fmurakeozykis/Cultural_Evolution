@@ -113,7 +113,7 @@ run_network_simulation <- function(output_dir, file_name, variance, run_number, 
 
     # The simulation starts here and continues for every parameter combination.
     for (t in seq_len(time_steps)) {
-      # Determiens whether migration will take place based on the
+      # Determines whether migration will take place based on the
       # probability mig_rate.
       is_migrating <- runif(1) < mig_rate
       # Focal individual is sampled from the population.
