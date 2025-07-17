@@ -307,6 +307,8 @@ run_network_simulation <- function(file_name, degree, run_number, variant_code) 
         }
       }
       
+      # For every timepoint that is a multiple of the given time interval, resident fraction is recorded
+      # in a the res_frac vector, at the index given by the multiple of the interval that the simulation is at.
       if (t %% record_interval == 0) res_frac[t / record_interval] <- sum(pop == "resident") / popsize
     }
     # Results are saved in the results dataframe and saved as an .RDS file.
